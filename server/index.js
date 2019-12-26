@@ -54,12 +54,12 @@ app.post('/users/add', (req, res) => {
         req.body.email
     );
     const sqlQuery = 'INSERT INTO users (firstname, lastname, email) VALUES (?, ?, ?)';
-    connection.query(sqlQuery, 
+    connection.query(sqlQuery,
     [
         user.firstName,
         user.lastName,
         user.email,
-    ], 
+    ],
     (error, results, fields) => {
         if (error) throw error;
         connection.end();
@@ -74,13 +74,13 @@ app.put('/users/:id/edit', (req, res) => {
         req.body.email
     );
     const sqlQuery = `UPDATE users SET firstname = ?, lastname = ?, email = ? WHERE id = ?`;
-    connection.query(sqlQuery, 
+    connection.query(sqlQuery,
         [
             user.firstName,
             user.lastName,
             user.email,
             req.params.id,
-        ], 
+        ],
         (error, results, fields) => {
             if (error) throw error;
             connection.end();
