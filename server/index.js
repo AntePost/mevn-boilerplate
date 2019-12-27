@@ -3,8 +3,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
-const config = require('./../config/config');
-const { User } = require('./../models');
+const path = require('path');
+const config = require(path.resolve(__dirname, '..', 'config', 'config.js'));
+const { User } = require(path.resolve(__dirname, '..', 'models', 'index.js'));
+const cors = require('cors');
 
 const connection = mysql.createConnection({
     host: config.dbHost,
@@ -16,6 +18,7 @@ connection.connect();
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/users', (req, res) => {
     connection.query('SELECT * FROM users', (error, results, fields) => {
@@ -23,12 +26,12 @@ app.get('/users', (req, res) => {
         const users = [];
         results.forEach(el => {
             users.push(new User(
+                el.id,
                 el.firstname,
                 el.lastname,
                 el.email
             ));
         });
-        connection.end();
         res.send(users);
     });
 });
@@ -38,11 +41,11 @@ app.get('/users/:id', (req, res) => {
     connection.query(sqlQuery, [ req.params.id ], (error, results, fields) => {
         if (error) throw error;
         const user = new User(
+            results[0].id,
             results[0].firstname,
             results[0].lastname,
             results[0].email
         );
-        connection.end();
         res.send(user);
     });
 });
@@ -62,7 +65,6 @@ app.post('/users/add', (req, res) => {
     ],
     (error, results, fields) => {
         if (error) throw error;
-        connection.end();
         res.send(user);
     });
 });
@@ -83,7 +85,6 @@ app.put('/users/:id/edit', (req, res) => {
         ],
         (error, results, fields) => {
             if (error) throw error;
-            connection.end();
             res.send(user);
         });
 });
@@ -92,7 +93,6 @@ app.delete('/users/:id/delete', (req, res) => {
     const sqlQuery = 'DELETE FROM users WHERE id = :id';
     connection.query(sqlQuery, [ req.params.id ], (error, results, fields) => {
         if (error) throw error;
-        connection.end();
         res.status(204).send();
     });
 });
